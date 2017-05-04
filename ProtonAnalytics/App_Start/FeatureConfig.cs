@@ -17,11 +17,14 @@ namespace ProtonAnalytics.App_Start
         private DateTime lastWriteTimeUtc = DateTime.MinValue;
         private readonly Regex CommentsRegex = new Regex("//.*");
 
+        public static FeatureConfig LastInstance { get; private set; }
+
         public FeatureConfig(string configFileName)
         {
             this.configFileName = configFileName;
             this.contents = new Dictionary<string, dynamic>();
             this.UpdateContentsIfFileChanged();
+            FeatureConfig.LastInstance = this;
         }
 
         public T Get<T>(string key) where T : struct

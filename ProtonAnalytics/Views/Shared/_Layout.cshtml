@@ -30,6 +30,10 @@
         </div>
     </div>
     <div class="container body-content">
+        @if (TempData[ProtonAnalytics.Controllers.AbstractController.FlashMessage] != null)
+        {
+            <div id="flash" style="padding: 8px; background: #dfd; border: 3px double black;">@TempData[ProtonAnalytics.Controllers.AbstractController.FlashMessage]</div>
+        }
         @RenderBody()
         <hr />
         <footer>

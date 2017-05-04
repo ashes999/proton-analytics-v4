@@ -9,11 +9,12 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using ProtonAnalytics.Models;
+using ProtonAnalytics.App_Start;
 
 namespace ProtonAnalytics.Controllers
 {
     [Authorize]
-    public class AccountController : Controller
+    public class AccountController : AbstractController
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
@@ -149,6 +150,12 @@ namespace ProtonAnalytics.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
+            if (!FeatureConfig.LastInstance.Get<bool>("AllowUserRegistrations"))
+            {
+                this.Flash("Registration is not allowed at this time.");
+                return RedirectToAction("Index", "Home");
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
