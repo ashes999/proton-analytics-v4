@@ -140,7 +140,15 @@ namespace ProtonAnalytics.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
-            return View();
+            if (!FeatureConfig.LastInstance.Get<bool>("AllowUserRegistrations"))
+            {
+                this.Flash("Registration is not allowed at this time.");
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         //
