@@ -5,3 +5,11 @@
 	OwnerId nvarchar(128) foreign key references AspNetUsers(Id),
 	CreatedOn datetime not null default getutcdate()	
 )
+
+create table Sessions (
+	PlayerId uniqueidentifier not null,
+	SessionStart datetime not null,
+	SessionEnd datetime, -- null if we don't know, eg. on Flash
+	[Platform] varchar(32) not null,
+	primary key(PlayerId, SessionStart)
+)
