@@ -12,12 +12,11 @@ namespace ProtonAnalytics.Models
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string ApiKey { get; internal set; }
-        public Guid OwnerId { get; internal set; }
+        public string OwnerId { get; internal set; }
         public DateTime CreatedOnUtc { get; }
 
         public Game()
         {
-            this.Id = Guid.NewGuid();
             this.CreatedOnUtc = DateTime.UtcNow;            
         }
 

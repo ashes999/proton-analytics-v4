@@ -17,13 +17,15 @@ namespace ProtonAnalytics.Controllers
         // GET: Game
         public ActionResult Index()
         {
-            return View();
+            var games = this.repository.Query<Game>("OwnerId = @currentUserId", new { currentUserId = this.CurrentUserId });
+            return View(games);
         }
 
         // GET: Game/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var game = this.repository.Query<Game>("Id = @id AND OwnerId = @currentUserId", new { id = id, currentUserId = this.CurrentUserId });
+            return View(game);
         }
 
         // GET: Game/Create
@@ -41,8 +43,10 @@ namespace ProtonAnalytics.Controllers
                 // TODO: Add insert logic here
                 var game = new Game();
                 game.Name = collection["Name"];
-                game.OwnerId = this.CurrentUserId;
-                game.GenerateApiKey();                
+                game.OwnerId = this.CurrentUserId.ToString();
+                game.GenerateApiKey();
+                this.repository.Save<Game>(game);
+                this.Flash($"Game {game.Name} created.");
                 return RedirectToAction("Index");
             }
             catch
