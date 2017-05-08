@@ -23,7 +23,7 @@
         </dt>
 
         <dd>
-            <a id="showApiKey" href="#" onclick="document.getElementById('apiKey').style.display = 'block'; document.getElementById('showApiKey').style.display = 'none';">show</a>
+            <a id="showApiKey" title="(click to show API key)" class="fa fa-eye fa-lg" href="#" onclick="document.getElementById('apiKey').style.display = 'block'; document.getElementById('showApiKey').style.display = 'none';"></a>
             <div id="apiKey" style="display: none">@Html.DisplayFor(model => model.ApiKey)</div>
         </dd>
 
