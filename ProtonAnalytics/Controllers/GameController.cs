@@ -22,9 +22,9 @@ namespace ProtonAnalytics.Controllers
         }
 
         // GET: Game/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(Guid id)
         {
-            var game = this.repository.Query<Game>("Id = @id AND OwnerId = @currentUserId", new { id = id, currentUserId = this.CurrentUserId });
+            var game = this.repository.Query<Game>("Id = @id AND OwnerId = @currentUserId", new { id = id, currentUserId = this.CurrentUserId }).Single();
             return View(game);
         }
 
@@ -56,14 +56,14 @@ namespace ProtonAnalytics.Controllers
         }
 
         // GET: Game/Edit/5
-        public ActionResult Edit(int id)
+        public ActionResult Edit(Guid id)
         {
             return View();
         }
 
         // POST: Game/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(Guid id, FormCollection collection)
         {
             try
             {
@@ -78,14 +78,14 @@ namespace ProtonAnalytics.Controllers
         }
 
         // GET: Game/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(Guid id)
         {
             return View();
         }
 
         // POST: Game/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(Guid id, FormCollection collection)
         {
             try
             {
