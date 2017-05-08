@@ -10,6 +10,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using ProtonAnalytics.Models;
 using ProtonAnalytics.App_Start;
+using ProtonAnalytics.Repositories;
 
 namespace ProtonAnalytics.Controllers
 {
@@ -19,11 +20,11 @@ namespace ProtonAnalytics.Controllers
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
-        public AccountController()
+        public AccountController(IGenericRepository genericRepository) : base(genericRepository)
         {
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+        public AccountController(IGenericRepository genericRepository, ApplicationUserManager userManager, ApplicationSignInManager signInManager) : base(genericRepository)
         {
             UserManager = userManager;
             SignInManager = signInManager;

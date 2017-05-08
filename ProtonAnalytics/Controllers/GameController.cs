@@ -1,13 +1,19 @@
-﻿using System;
+﻿using ProtonAnalytics.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using ProtonAnalytics.Repositories;
 
 namespace ProtonAnalytics.Controllers
 {
-    public class GameController : Controller
+    public class GameController : AbstractController
     {
+        public GameController(IGenericRepository repository) : base(repository)
+        {
+        }
+
         // GET: Game
         public ActionResult Index()
         {
@@ -33,7 +39,10 @@ namespace ProtonAnalytics.Controllers
             try
             {
                 // TODO: Add insert logic here
-
+                var game = new Game();
+                game.Name = collection["Name"];
+                game.OwnerId = this.CurrentUserId;
+                game.GenerateApiKey();                
                 return RedirectToAction("Index");
             }
             catch
