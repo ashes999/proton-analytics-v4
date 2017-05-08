@@ -23,7 +23,8 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.ApiKey)
+            <a id="showApiKey" href="#" onclick="document.getElementById('apiKey').style.display = 'block'; document.getElementById('showApiKey').style.display = 'none';">show</a>
+            <div id="apiKey" style="display: none">@Html.DisplayFor(model => model.ApiKey)</div>
         </dd>
 
         <dt>
