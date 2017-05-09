@@ -7,9 +7,12 @@
 )
 
 create table Sessions (
+	Id uniqueidentifier primary key not null default newid(),
+	GameId uniqueidentifier foreign key references Games(Id),
 	PlayerId uniqueidentifier not null,
 	SessionStartUtc datetime not null,
 	SessionEndUtc datetime, -- null if we don't know, eg. on Flash
-	[Platform] varchar(32) not null,
-	primary key(PlayerId, SessionStartUtc)
+	[Platform] varchar(32) not null,	
 )
+
+create index IX_Sessions_GamePlayerStart on Sessions(GameId, PlayerId, SessionStartUtc)
