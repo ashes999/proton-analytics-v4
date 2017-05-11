@@ -16,7 +16,6 @@ namespace ProtonAnalytics
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
-            //WebApiConfig.Register(GlobalConfiguration.Configuration);
             GlobalConfiguration.Configure(WebApiConfig.Register); // Web API
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);

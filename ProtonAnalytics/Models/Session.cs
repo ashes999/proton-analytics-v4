@@ -17,8 +17,8 @@ namespace ProtonAnalytics.Models
 
         public Session(Guid gameId, Guid playerId, string platform)
         {
-            this.GameId = GameId;
-            this.PlayerId = PlayerId;
+            this.GameId = gameId;
+            this.PlayerId = playerId;
             this.Platform = platform;
             this.SessionStartUtc = DateTime.UtcNow;
         }
