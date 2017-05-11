@@ -59,15 +59,45 @@ namespace ProtonAnalytics.Controllers.Api
 
         // PUT: api/Session/5
         // Marks a session as complete. Returns true if successful, false if you shouldn't retry, error if you should retry.
-        public bool Put([FromBody]string apiKey, [FromBody]Guid playerId)
+        public bool Put([FromBody]JObject json)
         {
-            // Look up the session. Player has only one active session at a time.
-            // If there are multiple (eg. Flash, player starts session, end-session never triggered),
-            // take the last one and use that as the active session.
+            var apiKey = json.GetValue("apiKey").Value<string>();
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                return false; // invalid request, don't retry
+            }
 
-            // If there's no session, return false.
+            var playerId = json.GetValue("playerId").Value<string>();
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                return false; // invalid request, don't retry
+            }
 
-            // Update SessionEndUtc
+            var games = repository.Query<Game>("ApiKey = @apiKey", new { apiKey = apiKey });
+
+            if (games.Count() != 1)
+            {
+                return false; // Your game doesn't exist or you gave us the wrong API key. Don't retry.
+            }
+
+            var game = games.Single();
+
+            // Game is legit. Proceed to insert session.
+            var sessions = repository.Query<Session>("GameId = @gameId AND PlayerId = @playerId", new { gameId = game.Id, playerId = playerId });
+
+            if (sessions.Count() == 0)
+            {
+                return false; // You never started a session!
+            }
+
+            // If multiple, end the last session. Even if it has an end time, update it.
+            // This allows platforms like Flash, which can't support end-session, to checkpoint
+            // every few minutes. Not the best, but better than nothing, amirite?
+            var session = sessions.OrderBy(s => s.SessionStartUtc).Last();
+            session.End();
+
+            repository.Save<Session>(session);
+
             return true;
         }        
     }
