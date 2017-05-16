@@ -41,7 +41,7 @@
                         <input type="submit" value="Log in" class="btn btn-default" />
                     </div>
                 </div>
-                if (ProtonAnalytics.App_Start.FeatureConfig.LastInstance.Get<bool>("AllowUserRegistrations"))
+                if (ProtonAnalytics.Repositories.FeatureTogglesRepository.Instance.IsToggleEnabled("AllowUserRegistrations"))
                 {
                     <p>
                         @Html.ActionLink("Register as a new user", "Register")

@@ -65,6 +65,7 @@ namespace ProtonAnalytics.App_Start
         {
             kernel.Bind<ConnectionStringSettings>().ToConstant(ConfigurationManager.ConnectionStrings["DefaultConnection"]);
             kernel.Bind<IGenericRepository>().To<GenericRepository>();
+            kernel.Bind<FeatureTogglesRepository>().ToSelf();
         }
     }
 }

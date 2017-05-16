@@ -1,5 +1,5 @@
 ﻿using ProtonAnalytics;
-using ProtonAnalytics.App_Start;
+using ProtonAnalytics.App_Start.RuntimeConfiguration;
 using System;
 using System.Collections.Generic;
 using System.Linq;

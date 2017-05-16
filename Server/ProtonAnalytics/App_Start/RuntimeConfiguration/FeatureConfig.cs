@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace ProtonAnalytics.App_Start
+namespace ProtonAnalytics.App_Start.RuntimeConfiguration
 {
 
     public class FeatureConfig

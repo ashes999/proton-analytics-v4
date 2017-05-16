@@ -17,7 +17,7 @@ else
 {
     <ul class="nav navbar-nav navbar-right">
         @{ 
-            if (ProtonAnalytics.App_Start.FeatureConfig.LastInstance.Get<bool>("AllowUserRegistrations"))
+            if (ProtonAnalytics.Repositories.FeatureTogglesRepository.Instance.IsToggleEnabled("AllowUserRegistrations"))
             {
                 <li>@Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
             }

@@ -9,8 +9,8 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using ProtonAnalytics.Models;
-using ProtonAnalytics.App_Start;
 using ProtonAnalytics.Repositories;
+using ProtonAnalytics.App_Start.RuntimeConfiguration;
 
 namespace ProtonAnalytics.Controllers
 {
@@ -19,8 +19,9 @@ namespace ProtonAnalytics.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private FeatureTogglesRepository togglesRepository;
 
-        public AccountController(IGenericRepository genericRepository) : base(genericRepository)
+        public AccountController(IGenericRepository genericRepository, FeatureTogglesRepository togglesRepository) : base(genericRepository)
         {
         }
 
@@ -141,7 +142,7 @@ namespace ProtonAnalytics.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
-            if (!FeatureConfig.LastInstance.Get<bool>("AllowUserRegistrations"))
+            if (!togglesRepository.IsToggleEnabled("AllowUserRegistrations"))
             {
                 this.Flash("Registration is not allowed at this time.");
                 return RedirectToAction("Index", "Home");
@@ -159,7 +160,7 @@ namespace ProtonAnalytics.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
-            if (!FeatureConfig.LastInstance.Get<bool>("AllowUserRegistrations"))
+            if (!togglesRepository.IsToggleEnabled("AllowUserRegistrations"))
             {
                 this.Flash("Registration is not allowed at this time.");
                 return RedirectToAction("Index", "Home");
