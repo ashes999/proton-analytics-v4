@@ -66,6 +66,9 @@ namespace ProtonAnalytics.App_Start
             kernel.Bind<ConnectionStringSettings>().ToConstant(ConfigurationManager.ConnectionStrings["DefaultConnection"]);
             kernel.Bind<IGenericRepository>().To<GenericRepository>();
             kernel.Bind<FeatureTogglesRepository>().ToSelf();
+
+            // Make sure we creat ea feature toggle repo. Otherwise, hitting the homoe page causes a crash.
+            new FeatureTogglesRepository(kernel.Get<ConnectionStringSettings>());
         }
     }
 }
