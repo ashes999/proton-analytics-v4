@@ -23,15 +23,15 @@ class AnalyticsClient
         var platform = this.getPlatform();
 
         // TODO: send the OS down too        
-        var os = Sys.systemName(); // eg. Windows, Linux, Mac, BSD
+        var operatingSystem = Sys.systemName(); // eg. Windows, Linux, Mac, BSD
 
         var body:String = '{
             "apiKey": "${apiKey}",
             "playerId": "${playerId}",
-            "platform": "${platform}"
+            "platform": "${platform}",
+            "operatingSystem": "${operatingSystem}"
         }';
 
-        trace('POSTing ${body}');
         this.httpRequest("POST", '${API_BASE_URL}/Session', body);
     }
 
@@ -42,16 +42,20 @@ class AnalyticsClient
             "Agent" => "thx.http.Request",            
         ];
 
-        if (method == "GET") {
-            info = new RequestInfo(Get, url, headers);
-        } else {
+        if (method == "GET")
+        {
+            info = new RequestInfo(method, url, headers);
+        }
+        else
+        {
             headers.set("Content-Type", "application/json");
             info = new RequestInfo(method, url, headers, Text(body));
         }
 
         Request.make(info, Json)
         .response
-        .flatMap(function(r) {
+        .flatMap(function(r)
+        {
             trace('${method} DONE (r=${r.statusCode}): ${r.body}');
             return r.body;
         })

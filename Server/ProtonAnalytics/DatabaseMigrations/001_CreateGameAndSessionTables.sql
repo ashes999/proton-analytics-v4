@@ -12,7 +12,8 @@ create table Sessions (
 	PlayerId uniqueidentifier not null,
 	SessionStartUtc datetime not null,
 	SessionEndUtc datetime, -- null if we don't know, eg. on Flash
-	[Platform] varchar(32) not null,	
+	[Platform] varchar(32) not null,
+	[OperatingSystem] varchar(32) not null
 )
 
 create index IX_Sessions_GamePlayerStart on Sessions(GameId, PlayerId, SessionStartUtc)

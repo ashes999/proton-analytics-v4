@@ -14,9 +14,10 @@ namespace ProtonAnalytics.Models
         public DateTime SessionStartUtc { get; }
         public DateTime? SessionEndUtc { get; private set; } // may be null if the client doesn't report this, eg. Flash
         public string Platform { get; }
+        public string OperatingSystem { get; }
 
         // For Dapper.net deserialization
-        public Session(System.Guid id, System.Guid gameId, System.Guid playerId, System.DateTime sessionStartUtc, System.DateTime sessionEndUtc, System.String platform)
+        public Session(Guid id, Guid gameId, System.Guid playerId, DateTime sessionStartUtc, DateTime sessionEndUtc, string platform, string operatingSystem)
         {
             this.Id = id;
             this.GameId = gameId;
@@ -24,13 +25,15 @@ namespace ProtonAnalytics.Models
             this.SessionStartUtc = sessionStartUtc;
             this.SessionEndUtc = sessionEndUtc;
             this.Platform = platform;
+            this.OperatingSystem = operatingSystem;
         }
 
-        public Session(Guid gameId, Guid playerId, string platform)
+        public Session(Guid gameId, Guid playerId, string platform, string operatingSystem)
         {
             this.GameId = gameId;
             this.PlayerId = playerId;
             this.Platform = platform;
+            this.OperatingSystem = operatingSystem;
             this.SessionStartUtc = DateTime.UtcNow;
         }
 

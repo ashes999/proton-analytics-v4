@@ -41,6 +41,12 @@ namespace ProtonAnalytics.Controllers.Api
                 return false; // invalid request, don't retry
             }
 
+            var operatingSystem = json.GetValue("operatingSystem").Value<string>();
+            if (string.IsNullOrWhiteSpace(operatingSystem))
+            {
+                return false; // invalid request, don't retry
+            }
+
             var games = repository.Query<Game>("ApiKey = @apiKey", new { apiKey = apiKey });
 
             if (games.Count() != 1)
@@ -51,7 +57,7 @@ namespace ProtonAnalytics.Controllers.Api
             var game = games.Single();
 
             // Game is legit. Proceed to insert session.
-            var session = new Session(game.Id, Guid.Parse(playerId), platform);
+            var session = new Session(game.Id, Guid.Parse(playerId), platform, operatingSystem);
             this.repository.Save<Session>(session);
 
             return true; 
