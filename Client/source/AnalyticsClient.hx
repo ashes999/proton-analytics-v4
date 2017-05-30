@@ -5,9 +5,12 @@ using thx.http.Request;
 using thx.Arrays;
 using thx.Strings;
 using Guid;
+
 #if thx_stream
 using thx.stream.Stream;
 #end
+
+import openfl.net.SharedObject;
 
 @:expose
 @:keep
@@ -15,15 +18,34 @@ using thx.stream.Stream;
 class AnalyticsClient
 {
     private static inline var API_BASE_URL:String = "http://localhost/ProtonAnalytics/api";
+    private static inline var SHARED_OBJECT_STORAGE_NAME = "Proton Analytics client data";
 
-    public function new() { }
+    private var playerId:String;
 
-    public function startSession(apiKey:String, playerId:String)
+    // Initializes (creates or loads) the player ID.
+    public function new()
+    {
+        var storage = SharedObject.getLocal(SHARED_OBJECT_STORAGE_NAME);
+
+        if (storage.data.playerId == null)
+        {
+            this.playerId = Guid.newGuid();
+            storage.data.playerId = this.playerId;
+            storage.flush();
+            trace('Generated a new player ID: ${this.playerId}');
+        }
+        else
+        {
+            this.playerId = storage.data.playerId;
+            trace('Reusing existing player ID: ${this.playerId}');
+        }
+    }
+
+    public function startSession(apiKey:String)
     {
         var platform = this.getPlatform();
 
-        // TODO: send the OS down too        
-        var operatingSystem = Sys.systemName(); // eg. Windows, Linux, Mac, BSD
+        var operatingSystem = this.getOperatingSystem();
 
         var body:String = '{
             "apiKey": "${apiKey}",
@@ -82,5 +104,24 @@ class AnalyticsClient
         #end
 
         throw "Unknown platform!";
+    }
+
+    private function getOperatingSystem():String
+    {
+        #if !js
+            return Sys.systemName(); // eg. Windows, Linux, Mac, BSD
+        #else
+            // Very crude OS detection based on navigator.userAgent (appName is deprecated)
+            var rawVersion = js.Browser.window.navigator.userAgent;
+            if (rawVersion.indexOf("Win") > -1) {
+                return "Windows";
+            } else if (rawVersion.indexOf("Mac") > -1) {
+                return "MacOS";
+            } else if (rawVersion.indexOf("X11") > -1 || rawVersion.indexOf("Linux") > -1) {
+                return "Linux";
+            } else {
+                return "Unknown OS";
+            }
+        #end
     }
 }

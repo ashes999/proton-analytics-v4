@@ -13,15 +13,14 @@ import Guid;
 
 @:expose
 @:keep
-class Main
+class Main extends openfl.display.Sprite
 {
     private static inline var API_KEY:String = "PTIY6d4512lvA//5Sdh0EJmLRbOf2h2L124e9fqlNaE=";
 
-	public static function main()
+	public function new()
 	{
+        super();
         var client = new AnalyticsClient();
-        var playerId = Guid.newGuid();
-
-        client.startSession(API_KEY, playerId);
+        client.startSession(API_KEY);
 	}
 }
