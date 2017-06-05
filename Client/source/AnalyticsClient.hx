@@ -74,33 +74,30 @@ class AnalyticsClient
             info = new RequestInfo(method, url, headers, Text(body));
         }
 
-        Request.make(info, Json)
-        .response
-        .flatMap(function(r)
+        Request.make(info, Json).response.flatMap(function(r)
         {
             trace('${method} DONE (r=${r.statusCode}): ${r.body}');
             return r.body;
         })
-        .success(function(r) trace("Request successful: " + r))
-        .failure(function(e) trace("Request FAILED: " + e));
+        .success(function(r)
+        {
+            trace("Request successful: " + r);
+        })
+        .failure(function(e) 
+        {
+            trace("Request FAILED: " + e);
+        });
     }
 
     private function getPlatform():String
     {
-        #if flash
-            return "Web/Flash";
-        #elseif flash8
-           return "Web/Flash";
-        #elseif cpp
-            return "Desktop/C++";
-        #elseif neko
-            return "Desktop/Neko";
-        #elseif js
-            return "Web/Javascript";
+        #if (flash || flash8 || js)
+            return "Web";
+        #elseif (cpp || neko || cs)
+            // is Android CPP?
+            return "Desktop";
         #elseif java
-            return "Android/Java";
-        #elseif cs
-            return "Desktop/C#";
+            return "Android";
         #end
 
         throw "Unknown platform!";
