@@ -10,6 +10,7 @@ using System.Web.Http;
 
 namespace ProtonAnalytics.Controllers.Api
 {
+    [AllowCrossSiteJson]
     public class SessionController : ApiController
     {
         private IGenericRepository repository;
