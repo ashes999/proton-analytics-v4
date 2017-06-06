@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ProtonAnalytics.App_Start.RuntimeConfiguration;
 using System.Web.Http;
 
 namespace ProtonAnalytics
@@ -10,6 +8,11 @@ namespace ProtonAnalytics
         public static void Register(HttpConfiguration config)
         {
             config.MapHttpAttributeRoutes();
+
+            if (FeatureConfig.LastInstance.Get<bool>("EnableCors") == true)
+            {
+                config.EnableCors();
+            }
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",

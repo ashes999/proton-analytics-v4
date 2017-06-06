@@ -15,14 +15,14 @@ namespace ProtonAnalytics
     {
         protected void Application_Start()
         {
+            new FeatureConfig(System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/Configuration.json")); // JSON config
+
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register); // Web API
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-
-            new FeatureConfig(System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/Configuration.json")); // JSON config
         }
     }
 }

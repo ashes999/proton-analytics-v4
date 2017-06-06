@@ -7,10 +7,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace ProtonAnalytics.Controllers.Api
 {
-    [AllowCrossSiteJson]
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class SessionController : ApiController
     {
         private IGenericRepository repository;
