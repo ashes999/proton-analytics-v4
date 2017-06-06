@@ -73,8 +73,14 @@ class AnalyticsClient
         this.httpRequest("PUT", '${API_BASE_URL}/Session', body);
     }
 
+    // Uses thx. Allows you to PUT/DELETE, and works in JS, but not in Neko.
+    // The alternative is customRequest, which doesn't work in JS, but works in Neko.
+    // Since we don't ship production games in Neko, we're going with thx.
     private function httpRequest(method:String, url:String, body:String):Void
     {
+        method = method.toUpperCase();
+        trace('${method}ing to ${url} with body ${body}');
+
         var info:RequestInfo;
         var headers:Map<String, String> = [
             "Agent" => "thx.http.Request",            
