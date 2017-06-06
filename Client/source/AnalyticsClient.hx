@@ -57,6 +57,22 @@ class AnalyticsClient
         this.httpRequest("POST", '${API_BASE_URL}/Session', body);
     }
 
+    // If called multiple times, updates the end to the current time (always).
+    // If multiple open sessions exist, updates the latest only.
+    public function endSession(apiKey:String)
+    {
+        var platform = this.getPlatform();
+
+        var operatingSystem = this.getOperatingSystem();
+
+        var body:String = '{
+            "apiKey": "${apiKey}",
+            "playerId": "${playerId}"
+        }';
+
+        this.httpRequest("PUT", '${API_BASE_URL}/Session', body);
+    }
+
     private function httpRequest(method:String, url:String, body:String):Void
     {
         var info:RequestInfo;
