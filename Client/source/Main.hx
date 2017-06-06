@@ -21,7 +21,7 @@ class Main extends openfl.display.Sprite
 	{
         super();
         var client = new AnalyticsClient();
-        client.startSession(API_KEY);
+        client.endSession(API_KEY);
         openfl.system.System.exit(0);
 	}
 }
