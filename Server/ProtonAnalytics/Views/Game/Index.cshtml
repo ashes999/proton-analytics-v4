@@ -17,6 +17,9 @@
         <th>
             @Html.DisplayNameFor(model => model.CreatedOnUtc)
         </th>
+        <th>
+            Stats
+        </th>
         <th></th>
     </tr>
 
@@ -27,6 +30,10 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.CreatedOnUtc)
+        </td>
+        <td>
+            <strong>Total Sessions:</strong> @ViewBag.GameStats[item.Id].NumSessions<br />
+            <strong>Average Session Time:</strong> @(TimeSpan.FromSeconds(ViewBag.GameStats[item.Id].AverageSessionTimeSeconds))
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |

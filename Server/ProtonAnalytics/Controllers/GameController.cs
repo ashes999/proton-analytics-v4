@@ -18,6 +18,7 @@ namespace ProtonAnalytics.Controllers
         public ActionResult Index()
         {
             var games = this.repository.Query<Game>("OwnerId = @currentUserId", new { currentUserId = this.CurrentUserId });
+            ViewBag.GameStats = GenerateStatsFor(games);
             return View(games);
         }
 
@@ -25,9 +26,10 @@ namespace ProtonAnalytics.Controllers
         public ActionResult Details(Guid id)
         {
             var game = this.repository.Query<Game>("Id = @id AND OwnerId = @currentUserId", new { id = id, currentUserId = this.CurrentUserId }).Single();
+            ViewBag.GameStats = GenerateStatsFor(game);
             return View(game);
         }
-
+        
         // GET: Game/Create
         public ActionResult Create()
         {
@@ -98,5 +100,35 @@ namespace ProtonAnalytics.Controllers
                 return View();
             }
         }
+
+        private Dictionary<Guid, GameStats> GenerateStatsFor(Game game)
+        {
+            return this.GenerateStatsFor(new List<Game>() { game });
+        }
+
+        private Dictionary<Guid, GameStats> GenerateStatsFor(IEnumerable<Game> games)
+        {
+            var toReturn = new Dictionary<Guid, GameStats>();
+
+            foreach (var game in games)
+            {
+                var stats = new GameStats();
+                var sessions = this.repository.Query<Session>("GameId = @gameId", new { gameId = game.Id });
+
+                stats.NumSessions = sessions.Count();
+                var finishedSessions = sessions.Where(s => s.SessionEndUtc != DateTime.MinValue); // nullable but comes back as DateTime.MinValue
+                var totalSeconds = finishedSessions.Average(s => (s.SessionEndUtc.Value - s.SessionStartUtc).TotalSeconds);
+                stats.AverageSessionTimeSeconds = totalSeconds;
+                toReturn[game.Id] = stats;
+            }
+
+            return toReturn;
+        }
+    }
+
+    public class GameStats
+    {
+        public int NumSessions { get; set; }
+        public double AverageSessionTimeSeconds { get; set; }
     }
 }
