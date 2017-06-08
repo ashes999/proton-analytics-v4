@@ -28,7 +28,7 @@ namespace ProtonAnalytics.Models
             this.OperatingSystem = operatingSystem;
         }
 
-        public Session(Guid gameId, Guid playerId, string platform, string operatingSystem)
+        public Session(Guid gameId, Guid playerId, string platform, string operatingSystem, DateTime sessionStartUtc)
         {
             this.GameId = gameId;
             this.PlayerId = playerId;
@@ -37,11 +37,11 @@ namespace ProtonAnalytics.Models
             this.SessionStartUtc = DateTime.UtcNow;
         }
 
-        public void End()
+        public void End(DateTime endTimeUtc)
         {
             // Possibly overwrites the existing end date. That's okay, because that allows
             // us to support checkpointing on Flash, where there's no reliable end-session.
-            this.SessionEndUtc = DateTime.UtcNow;
+            this.SessionEndUtc = endTimeUtc;
         }
     }
 }

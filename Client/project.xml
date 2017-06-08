@@ -5,4 +5,5 @@
 	<source path="source" />
 	<haxelib name="openfl" />
 	<haxelib name="thx.http" />
+	<haxelib name="datetime" />
 </project>

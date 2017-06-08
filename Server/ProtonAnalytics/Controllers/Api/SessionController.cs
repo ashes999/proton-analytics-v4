@@ -3,6 +3,7 @@ using ProtonAnalytics.Models;
 using ProtonAnalytics.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -14,6 +15,8 @@ namespace ProtonAnalytics.Controllers.Api
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class SessionController : ApiController
     {
+        private static readonly string HaxeDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+
         private IGenericRepository repository;
 
         public SessionController(IGenericRepository repository)
@@ -49,6 +52,13 @@ namespace ProtonAnalytics.Controllers.Api
                 return false; // invalid request, don't retry
             }
 
+            var sessionStartUtc = json.GetValue("sessionStartUtc").Value<string>();
+            if (string.IsNullOrWhiteSpace(sessionStartUtc))
+            {
+                return false; // invalid request, don't retry
+            }
+            var asDate = DateTime.ParseExact(sessionStartUtc, HaxeDateTimeFormat, CultureInfo.InvariantCulture);
+
             var games = repository.Query<Game>("ApiKey = @apiKey", new { apiKey = apiKey });
 
             if (games.Count() != 1)
@@ -59,7 +69,7 @@ namespace ProtonAnalytics.Controllers.Api
             var game = games.Single();
 
             // Game is legit. Proceed to insert session.
-            var session = new Session(game.Id, Guid.Parse(playerId), platform, operatingSystem);
+            var session = new Session(game.Id, Guid.Parse(playerId), platform, operatingSystem, asDate);
             this.repository.Save<Session>(session);
 
             return true; 
@@ -81,6 +91,13 @@ namespace ProtonAnalytics.Controllers.Api
                 return false; // invalid request, don't retry
             }
 
+            var sessionEndUtc = json.GetValue("sessionEndUtc").Value<string>();
+            if (string.IsNullOrWhiteSpace(sessionEndUtc))
+            {
+                return false; // invalid request, don't retry
+            }
+            var asDate = DateTime.ParseExact(sessionEndUtc, HaxeDateTimeFormat, CultureInfo.InvariantCulture);
+
             var games = repository.Query<Game>("ApiKey = @apiKey", new { apiKey = apiKey });
 
             if (games.Count() != 1)
@@ -101,8 +118,8 @@ namespace ProtonAnalytics.Controllers.Api
             // If multiple, end the last session. Even if it has an end time, update it.
             // This allows platforms like Flash, which can't support end-session, to checkpoint
             // every few minutes. Not the best, but better than nothing, amirite?
-            var session = sessions.OrderBy(s => s.SessionStartUtc).Last();
-            session.End();
+            var session = sessions.OrderBy(s => s.SessionStartUtc).Last();            
+            session.End(asDate);
 
             repository.Save<Session>(session);
 

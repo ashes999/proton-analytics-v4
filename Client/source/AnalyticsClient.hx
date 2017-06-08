@@ -1,3 +1,4 @@
+import datetime.DateTime;
 import haxe.io.Bytes;
 import thx.http.RequestInfo;
 import thx.http.RequestType;
@@ -43,15 +44,16 @@ class AnalyticsClient
 
     public function startSession(apiKey:String)
     {
+        var now = this.getUtcDateString();
         var platform = this.getPlatform();
-
         var operatingSystem = this.getOperatingSystem();
 
         var body:String = '{
             "apiKey": "${apiKey}",
             "playerId": "${playerId}",
             "platform": "${platform}",
-            "operatingSystem": "${operatingSystem}"
+            "operatingSystem": "${operatingSystem}",
+            "sessionStartUtc": "${now}"
         }';
 
         this.httpRequest("POST", '${API_BASE_URL}/Session', body);
@@ -61,13 +63,14 @@ class AnalyticsClient
     // If multiple open sessions exist, updates the latest only.
     public function endSession(apiKey:String)
     {
+        var now = this.getUtcDateString();
         var platform = this.getPlatform();
-
         var operatingSystem = this.getOperatingSystem();
 
         var body:String = '{
             "apiKey": "${apiKey}",
-            "playerId": "${playerId}"
+            "playerId": "${playerId}",
+            "sessionEndUtc": "${now}"
         }';
 
         this.httpRequest("PUT", '${API_BASE_URL}/Session', body);
@@ -142,5 +145,11 @@ class AnalyticsClient
                 return "Unknown OS";
             }
         #end
+    }
+
+    private function getUtcDateString():String
+    {
+        var utc = DateTime.local().utc();
+        return utc.toString();
     }
 }
