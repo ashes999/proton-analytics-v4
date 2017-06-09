@@ -1,4 +1,6 @@
 ﻿using ProtonAnalytics.App_Start.RuntimeConfiguration;
+using ProtonAnalytics.Repositories;
+using System.Configuration;
 using System.Web.Http;
 
 namespace ProtonAnalytics
@@ -9,7 +11,11 @@ namespace ProtonAnalytics
         {
             config.MapHttpAttributeRoutes();
 
-            if (FeatureConfig.LastInstance.Get<bool>("EnableCors") == true)
+            System.Diagnostics.Debugger.Break();
+            // We don't have an initialized FeatureTogglesRepository instance. Make one.
+            var repo = new FeatureTogglesRepository(ConfigurationManager.ConnectionStrings["DefaultConnection"]);
+
+            if (repo.IsToggleEnabled("EnableCors"))
             {
                 config.EnableCors();
             }

@@ -23,6 +23,7 @@ namespace ProtonAnalytics.Controllers
 
         public AccountController(IGenericRepository genericRepository, FeatureTogglesRepository togglesRepository) : base(genericRepository)
         {
+            this.togglesRepository = togglesRepository;
         }
 
         public AccountController(IGenericRepository genericRepository, ApplicationUserManager userManager, ApplicationSignInManager signInManager) : base(genericRepository)
