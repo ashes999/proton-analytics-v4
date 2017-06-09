@@ -6,12 +6,12 @@ using thx.http.Request;
 using thx.Arrays;
 using thx.Strings;
 using Guid;
+using storage.IStorage;
+using storage.SharedObjectStorage;
 
 #if thx_stream
 using thx.stream.Stream;
 #end
-
-import openfl.net.SharedObject;
 
 @:expose
 @:keep
@@ -19,25 +19,23 @@ import openfl.net.SharedObject;
 class AnalyticsClient
 {
     private static inline var API_BASE_URL:String = "http://localhost/ProtonAnalytics/api";
-    private static inline var SHARED_OBJECT_STORAGE_NAME = "Proton Analytics client data";
 
     private var playerId:String;
 
     // Initializes (creates or loads) the player ID.
     public function new()
     {
-        var storage = SharedObject.getLocal(SHARED_OBJECT_STORAGE_NAME);
+        var storage:IStorage = new SharedObjectStorage();
 
-        if (storage.data.playerId == null)
+        if (!storage.has("playerId"))
         {
             this.playerId = Guid.newGuid();
-            storage.data.playerId = this.playerId;
-            storage.flush();
+            storage.set("playerId", this.playerId);
             trace('Generated a new player ID: ${this.playerId}');
         }
         else
         {
-            this.playerId = storage.data.playerId;
+            this.playerId = storage.get("playerId");
             trace('Reusing existing player ID: ${this.playerId}');
         }
     }
