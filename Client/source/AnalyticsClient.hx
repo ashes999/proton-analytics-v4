@@ -1,4 +1,5 @@
 import datetime.DateTime;
+import haxe.Http;
 import haxe.io.Bytes;
 import thx.http.RequestInfo;
 import thx.http.RequestType;
@@ -80,8 +81,16 @@ class AnalyticsClient
     private function httpRequest(method:String, url:String, body:String):Void
     {
         method = method.toUpperCase();
-        trace('${method}ing to ${url} with body ${body}');
+        
+        #if neko
+        this.makeCustomHttpRequest(method, url, body);        
+        #else
+        this.makeThxHttpRequest(method, url, body);
+        #end
+    }
 
+    private function makeThxHttpRequest(method:String, url:String, body:String):Void
+    {
         var info:RequestInfo;
         var headers:Map<String, String> = [
             "Agent" => "thx.http.Request",            
@@ -104,12 +113,42 @@ class AnalyticsClient
         })
         .success(function(r)
         {
-            trace("Request successful: " + r);
+            trace('Request successful: ${r}');
         })
         .failure(function(e) 
         {
-            trace("Request FAILED: " + e);
+            trace('Request FAILED: ${e}');
         });
+    }
+
+    private function makeCustomHttpRequest(method:String, url:String, body:String):Void
+    {
+        var request:Http = new Http(url);
+        var bytesOutput = new haxe.io.BytesOutput(); // Useless but necessary to call customRequest
+        if (method != "GET")
+        {
+            request.setHeader("Content-Type", "application/json");
+            request.setPostData(body);
+        }
+
+        request.onStatus = function(status)
+        {
+            trace('Custom Request status update: ${Std.int(status)}');
+        }
+        
+        request.onError = function (e)
+        {
+            trace('Custom request FAILED: ${e}');
+        }
+
+        if (method == "GET" || method == "POST")
+        {
+            request.request(true);
+        }
+        else
+        {
+            request.customRequest(true, bytesOutput, method);
+        }
     }
 
     private function getPlatform():String
