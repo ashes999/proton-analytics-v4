@@ -147,7 +147,7 @@ class AnalyticsClient
 
     private function getUtcDateString():String
     {
-        var utc = DateTime.local().utc();
+        var utc = DateTime.now();
         return utc.toString();
     }
 }
