@@ -123,6 +123,7 @@ class AnalyticsClient
 
     private function makeCustomHttpRequest(method:String, url:String, body:String):Void
     {
+        #if neko
         var request:Http = new Http(url);
         var bytesOutput = new haxe.io.BytesOutput(); // Useless but necessary to call customRequest
         if (method != "GET")
@@ -149,6 +150,7 @@ class AnalyticsClient
         {
             request.customRequest(true, bytesOutput, method);
         }
+        #end
     }
 
     private function getPlatform():String

@@ -11,7 +11,6 @@ namespace ProtonAnalytics
         {
             config.MapHttpAttributeRoutes();
 
-            System.Diagnostics.Debugger.Break();
             // We don't have an initialized FeatureTogglesRepository instance. Make one.
             var repo = new FeatureTogglesRepository(ConfigurationManager.ConnectionStrings["DefaultConnection"]);
 
