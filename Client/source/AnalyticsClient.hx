@@ -16,7 +16,9 @@ using thx.stream.Stream;
 
 @:expose
 @:keep
-// TODO: Don't require Flixel if you can avoid it. Opens this up to non-gaming clients.
+// Uses Lime for persistence. You can swap this out for something else that offers
+// cross-platform persistence (if you want to support other frameworks).
+// For example, Kha might use Storage or StorageFile. Just implement IStorage.
 class AnalyticsClient
 {
     private static inline var API_BASE_URL:String = "http://localhost/ProtonAnalytics/api";
@@ -37,7 +39,6 @@ class AnalyticsClient
         else
         {
             this.playerId = storage.get("playerId");
-            trace('Reusing existing player ID: ${this.playerId}');
         }
     }
 
