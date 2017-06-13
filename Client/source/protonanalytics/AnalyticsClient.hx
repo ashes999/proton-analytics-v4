@@ -1,3 +1,5 @@
+package protonanalytics;
+
 import datetime.DateTime;
 import haxe.Http;
 import haxe.io.Bytes;
@@ -7,9 +9,9 @@ import thx.http.RequestType;
 using thx.http.Request;
 using thx.Arrays;
 using thx.Strings;
-using Guid;
-using storage.IStorage;
-using storage.SharedObjectStorage;
+using protonanalytics.Guid;
+using protonanalytics.storage.IStorage;
+using protonanalytics.storage.SharedObjectStorage;
 
 #if thx_stream
 using thx.stream.Stream;

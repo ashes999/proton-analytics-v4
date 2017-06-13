@@ -1,4 +1,4 @@
-package storage;
+package protonanalytics.storage;
 
 // An interface to handle inter-invocation persistence (eg. the player ID
 // is generated and stored persistently).

@@ -1,3 +1,5 @@
+package protonanalytics;
+
 // Based on https://gist.github.com/ciscoheat/4b1797fa56648adac163f44186f1823a
 // Any changes include the previous version as commented-out code
 // TODO: move into Noor

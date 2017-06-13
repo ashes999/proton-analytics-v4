@@ -1,3 +1,5 @@
+package protonanalytics;
+
 class ClientRequest
 {
     public var httpVerb(default, null):String;

@@ -8,8 +8,7 @@ using thx.Strings;
 using thx.stream.Stream;
 #end
 
-import AnalyticsClient;
-import Guid;
+import protonanalytics.AnalyticsClient;
 
 @:expose
 @:keep

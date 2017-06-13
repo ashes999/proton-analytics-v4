@@ -1,4 +1,4 @@
-package storage;
+package protonanalytics.storage;
 
 import openfl.net.SharedObject;
 

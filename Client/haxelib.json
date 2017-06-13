@@ -1,0 +1,15 @@
+{
+	"name": "proton-analytics",
+	"url" : "https://github.com/ashes999/proton-analytics-v4",
+	"license": "MIT",
+	"tags": ["analytics", "flash", "html5", "neko", "cpp", "android", "ios", "cross"],
+	"description": "The ProtonAnalytics cross-platform client.",
+	"version": "1.0.0",
+	"releasenote": "Initial release.",
+	"contributors": ["ashes999"],
+	"dependencies": {
+        "datetime": "3.1.0",
+        "openfl": "3.6.1",
+        "thx.http": "git:https://github.com/fponticelli/thx.http"
+    }
+}
