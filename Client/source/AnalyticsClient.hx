@@ -55,7 +55,8 @@ class AnalyticsClient
             "sessionStartUtc": "${now}"
         }';
 
-        this.httpRequest("POST", '${API_BASE_URL}/Session', body);
+        var request = new ClientRequest("POST", '${API_BASE_URL}/Session', body);
+        this.httpRequest(request);
     }
 
     // If called multiple times, updates the end to the current time (always).
@@ -72,43 +73,39 @@ class AnalyticsClient
             "sessionEndUtc": "${now}"
         }';
 
-        this.httpRequest("PUT", '${API_BASE_URL}/Session', body);
+        var request = new ClientRequest("PUT", '${API_BASE_URL}/Session', body);
+        this.httpRequest(request);
     }
 
-    // Uses thx. Allows you to PUT/DELETE, and works in JS, but not in Neko.
-    // The alternative is customRequest, which doesn't work in JS, but works in Neko.
-    // Since we don't ship production games in Neko, we're going with thx.
-    private function httpRequest(method:String, url:String, body:String):Void
+    private function httpRequest(request:ClientRequest):Void
     {
-        method = method.toUpperCase();
-        
-        #if neko
-        this.makeCustomHttpRequest(method, url, body);        
+        #if neko // useful for debugging/development
+        this.makeCustomHttpRequest(request);        
         #else
-        this.makeThxHttpRequest(method, url, body);
+        this.makeThxHttpRequest(request);
         #end
     }
 
-    private function makeThxHttpRequest(method:String, url:String, body:String):Void
+    private function makeThxHttpRequest(request:ClientRequest):Void
     {
         var info:RequestInfo;
         var headers:Map<String, String> = [
             "Agent" => "thx.http.Request",            
         ];
 
-        if (method == "GET")
+        if (request.httpVerb == "GET")
         {
-            info = new RequestInfo(method, url, headers);
+            info = new RequestInfo(request.httpVerb, request.url, headers);
         }
         else
         {
             headers.set("Content-Type", "application/json");
-            info = new RequestInfo(method, url, headers, Text(body));
+            info = new RequestInfo(request.httpVerb, request.url, headers, Text(request.body));
         }
 
         Request.make(info, Json).response.flatMap(function(r)
         {
-            trace('${method} DONE (r=${r.statusCode}): ${r.body}');
+            trace('${request.httpVerb} DONE (r=${r.statusCode}): ${r.body}');
             return r.body;
         })
         .success(function(r)
@@ -121,34 +118,34 @@ class AnalyticsClient
         });
     }
 
-    private function makeCustomHttpRequest(method:String, url:String, body:String):Void
+    private function makeCustomHttpRequest(request:ClientRequest):Void
     {
         #if neko
-        var request:Http = new Http(url);
+        var httpRequest:Http = new Http(request.url);
         var bytesOutput = new haxe.io.BytesOutput(); // Useless but necessary to call customRequest
-        if (method != "GET")
+        if (request.httpVerb != "GET")
         {
-            request.setHeader("Content-Type", "application/json");
-            request.setPostData(body);
+            httpRequest.setHeader("Content-Type", "application/json");
+            httpRequest.setPostData(request.body);
         }
 
-        request.onStatus = function(status)
+        httpRequest.onStatus = function(status)
         {
             trace('Custom Request status update: ${Std.int(status)}');
         }
         
-        request.onError = function (e)
+        httpRequest.onError = function (e)
         {
             trace('Custom request FAILED: ${e}');
         }
 
-        if (method == "GET" || method == "POST")
+        if (request.httpVerb == "GET" || request.httpVerb == "POST")
         {
-            request.request(true);
+            httpRequest.request(true);
         }
         else
         {
-            request.customRequest(true, bytesOutput, method);
+            httpRequest.customRequest(true, bytesOutput, request.httpVerb);
         }
         #end
     }
