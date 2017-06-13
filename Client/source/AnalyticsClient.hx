@@ -91,6 +91,11 @@ class AnalyticsClient
         this.httpRequest(request);
     }
 
+    public function dispose():Void
+    {
+        this.timer.stop();
+    }
+
     // Core function. Abstracts away customRequest (neko) vs thx (all other platforms).
     // Eventually, calls will queue up the "request" for retry if the call fails.    
     private function httpRequest(request:ClientRequest):Void
