@@ -1,6 +1,7 @@
 import datetime.DateTime;
 import haxe.Http;
 import haxe.io.Bytes;
+import haxe.Timer;
 import thx.http.RequestInfo;
 import thx.http.RequestType;
 using thx.http.Request;
@@ -16,6 +17,11 @@ using thx.stream.Stream;
 
 @:expose
 @:keep
+// An analytics client that talks to the server. Please keep the instance of this
+// alive; doing so will auto-retry sending events in the event of a failure.
+// If you dispose of the client quickly, failed events won't be resent.
+// Please call .dispose when you're done with this instance.
+//
 // Uses Lime for persistence. You can swap this out for something else that offers
 // cross-platform persistence (if you want to support other frameworks).
 // For example, Kha might use Storage or StorageFile. Just implement IStorage.
@@ -23,11 +29,16 @@ class AnalyticsClient
 {
     private static inline var API_BASE_URL:String = "http://localhost/ProtonAnalytics/api";
 
+    private var timer:Timer = new Timer(60 * 1000); // every minute
+    private var eventsToResend = new Array<ClientRequest>();
+    private var apiKey:String;
     private var playerId:String;
 
     // Initializes (creates or loads) the player ID.
-    public function new()
+    public function new(apiKey:String)
     {
+        this.apiKey = apiKey;
+
         var storage:IStorage = new SharedObjectStorage();
 
         if (!storage.has("playerId"))
@@ -40,17 +51,19 @@ class AnalyticsClient
         {
             this.playerId = storage.get("playerId");
         }
+
+        timer.run = this.retryFailedRequests;
     }
 
-    public function startSession(apiKey:String)
+    public function startSession()
     {
         var now = this.getUtcDateString();
         var platform = this.getPlatform();
         var operatingSystem = this.getOperatingSystem();
 
         var body:String = '{
-            "apiKey": "${apiKey}",
-            "playerId": "${playerId}",
+            "apiKey": "${this.apiKey}",
+            "playerId": "${this.playerId}",
             "platform": "${platform}",
             "operatingSystem": "${operatingSystem}",
             "sessionStartUtc": "${now}"
@@ -62,15 +75,15 @@ class AnalyticsClient
 
     // If called multiple times, updates the end to the current time (always).
     // If multiple open sessions exist, updates the latest only.
-    public function endSession(apiKey:String)
+    public function endSession()
     {
         var now = this.getUtcDateString();
         var platform = this.getPlatform();
         var operatingSystem = this.getOperatingSystem();
 
         var body:String = '{
-            "apiKey": "${apiKey}",
-            "playerId": "${playerId}",
+            "apiKey": "${this.apiKey}",
+            "playerId": "${this.playerId}",
             "sessionEndUtc": "${now}"
         }';
 
@@ -78,6 +91,8 @@ class AnalyticsClient
         this.httpRequest(request);
     }
 
+    // Core function. Abstracts away customRequest (neko) vs thx (all other platforms).
+    // Eventually, calls will queue up the "request" for retry if the call fails.    
     private function httpRequest(request:ClientRequest):Void
     {
         #if neko // useful for debugging/development
@@ -116,6 +131,8 @@ class AnalyticsClient
         .failure(function(e) 
         {
             trace('Request FAILED: ${e}');
+            trace('Failed to send request ${request.httpVerb} -- queueing for retry.');
+            this.eventsToResend.push(request);
         });
     }
 
@@ -138,6 +155,8 @@ class AnalyticsClient
         httpRequest.onError = function (e)
         {
             trace('Custom request FAILED: ${e}');
+            trace('Failed to send request ${request.httpVerb} -- queueing for retry.');
+            this.eventsToResend.push(request);
         }
 
         if (request.httpVerb == "GET" || request.httpVerb == "POST")
@@ -149,6 +168,29 @@ class AnalyticsClient
             httpRequest.customRequest(true, bytesOutput, request.httpVerb);
         }
         #end
+    }
+
+    // Retries queued events. Also calls endSession every minute, so for clients
+    // that don't tell us they end (eg. Flash, JS), we have at least some level
+    // of reporting on how long the user was active.
+    private function retryFailedRequests():Void
+    {
+        // Calling httpRequest queues more events, so you get a queue where you're
+        // iterating and records are being added to the end simultaneously. EPIC infinite loop.
+        // Instead, just go over however-many events are there in the queue right now.
+        var events = eventsToResend.length;
+        if (events > 0) {
+            while (events-- > 0)
+            {
+                // Take the first item
+                var request = eventsToResend.shift();
+                trace('Found ${eventsToResend.length + 1} events to retry. Starting with: ${request.httpVerb}');                
+                this.httpRequest(request);
+            }
+        }
+
+        // Notify the server that the player was active for another minute.
+        this.endSession();         
     }
 
     private function getPlatform():String

@@ -20,8 +20,8 @@ class Main extends openfl.display.Sprite
 	public function new()
 	{
         super();
-        var client = new AnalyticsClient();
-        client.startSession(API_KEY);
+        var client = new AnalyticsClient(API_KEY);
+        client.startSession();
         openfl.system.System.exit(0);
 	}
 }
