@@ -29,7 +29,7 @@ using thx.stream.Stream;
 // For example, Kha might use Storage or StorageFile. Just implement IStorage.
 class AnalyticsClient
 {
-    private static inline var API_BASE_URL:String = "http://localhost/ProtonAnalytics/api";
+    private static inline var API_BASE_URL:String = "http://aalibhai-d03/ProtonAnalytics/api";
 
     private var timer:Timer = new Timer(60 * 1000); // every minute
     private var eventsToResend = new Array<ClientRequest>();

@@ -1,5 +1,5 @@
 {
-	"name": "proton-analytics",
+	"name": "protonanalytics",
 	"url" : "https://github.com/ashes999/proton-analytics-v4",
 	"license": "MIT",
 	"tags": ["analytics", "flash", "html5", "neko", "cpp", "android", "ios", "cross"],
