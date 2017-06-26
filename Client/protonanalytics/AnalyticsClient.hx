@@ -21,8 +21,6 @@ using thx.stream.Stream;
 @:keep
 // An analytics client that talks to the server. Please keep the instance of this
 // alive; doing so will auto-retry sending events in the event of a failure.
-// If you dispose of the client quickly, failed events won't be resent.
-// Please call .dispose when you're done with this instance.
 //
 // Uses Lime for persistence. You can swap this out for something else that offers
 // cross-platform persistence (if you want to support other frameworks).
