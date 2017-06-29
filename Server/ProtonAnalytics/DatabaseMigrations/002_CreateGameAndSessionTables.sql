@@ -1,4 +1,5 @@
-﻿create table Games (
+﻿-- REGISTER BEFORE YOU RUN THIS. We need ASP.NET MVC tto generate the AspNetUsers table.
+create table Games (
 	Id uniqueidentifier primary key not null default newid(),
 	Name nvarchar(255) not null,
 	ApiKey varchar(64) not null, -- 32-bits base-64 encoded

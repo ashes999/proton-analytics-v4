@@ -114,11 +114,13 @@ namespace ProtonAnalytics.Controllers
             {
                 var stats = new GameStats();
                 var sessions = this.repository.Query<Session>("GameId = @gameId", new { gameId = game.Id });
-
-                stats.NumSessions = sessions.Count();
-                var finishedSessions = sessions.Where(s => s.SessionEndUtc != DateTime.MinValue); // nullable but comes back as DateTime.MinValue
-                var totalSeconds = finishedSessions.Average(s => (s.SessionEndUtc.Value - s.SessionStartUtc).TotalSeconds);
-                stats.AverageSessionTimeSeconds = totalSeconds;
+                if (sessions.Any())
+                {
+                    stats.NumSessions = sessions.Count();
+                    var finishedSessions = sessions.Where(s => s.SessionEndUtc != DateTime.MinValue); // nullable but comes back as DateTime.MinValue
+                    var totalSeconds = finishedSessions.Average(s => (s.SessionEndUtc.Value - s.SessionStartUtc).TotalSeconds);
+                    stats.AverageSessionTimeSeconds = totalSeconds;
+                }
                 toReturn[game.Id] = stats;
             }
 
