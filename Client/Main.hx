@@ -14,7 +14,7 @@ import protonanalytics.AnalyticsClient;
 @:keep
 class Main extends openfl.display.Sprite
 {
-    private static inline var API_KEY:String = "PTIY6d4512lvA//5Sdh0EJmLRbOf2h2L124e9fqlNaE=";
+    private static inline var API_KEY:String = "NLPrclNm1ybTnwcBrwpzp/KcSsn8go8b4tjdRL90Lw8=";
 
 	public function new()
 	{
