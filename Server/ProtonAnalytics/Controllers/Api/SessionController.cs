@@ -40,6 +40,12 @@ namespace ProtonAnalytics.Controllers.Api
                 return false; // invalid request, don't retry
             }
 
+            var version = json.GetValue("version").Value<string>();
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                return false; // invalid request, don't retry
+            }
+
             var platform = json.GetValue("platform").Value<string>();
             if (string.IsNullOrWhiteSpace(platform))
             {
@@ -69,7 +75,7 @@ namespace ProtonAnalytics.Controllers.Api
             var game = games.Single();
 
             // Game is legit. Proceed to insert session.
-            var session = new Session(game.Id, Guid.Parse(playerId), platform, operatingSystem, asDate);
+            var session = new Session(game.Id, Guid.Parse(playerId), version, platform, operatingSystem, asDate);
             this.repository.Save<Session>(session);
 
             return true; 

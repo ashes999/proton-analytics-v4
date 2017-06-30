@@ -55,7 +55,7 @@ class AnalyticsClient
         timer.run = this.retryFailedRequests;
     }
 
-    public function startSession()
+    public function startSession(gameVersion:String)
     {
         var now = this.getUtcDateString();
         var platform = this.getPlatform();
@@ -64,6 +64,7 @@ class AnalyticsClient
         var body:String = '{
             "apiKey": "${this.apiKey}",
             "playerId": "${this.playerId}",
+            "version": "${gameVersion}",
             "platform": "${platform}",
             "operatingSystem": "${operatingSystem}",
             "sessionStartUtc": "${now}"
@@ -147,6 +148,13 @@ class AnalyticsClient
             httpRequest.setPostData(request.body);
         }
 
+        httpRequest.onData = function(data) {
+            if (data.toLowerCase() == "false")
+            {
+                trace('Failed to send request ${request.httpVerb} -- response was FALSE. queueing for retry.');                
+                this.eventsToResend.push(request);
+            }
+        }
         httpRequest.onStatus = function(status)
         {
             trace('Custom Request status update: ${Std.int(status)}');

@@ -256,6 +256,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="DatabaseMigrations\002_CreateGameAndSessionTables.sql" />
     <Content Include="DatabaseMigrations\001_CreateFeatureTogglesTable.sql" />
+    <Content Include="DatabaseMigrations\003_AddVersionToSessionTable.sql" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
