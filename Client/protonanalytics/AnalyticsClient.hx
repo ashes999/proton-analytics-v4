@@ -27,7 +27,7 @@ using thx.stream.Stream;
 // For example, Kha might use Storage or StorageFile. Just implement IStorage.
 class AnalyticsClient
 {
-    private static inline var API_BASE_URL:String = "http://protonanalytics.com/api";
+    private static inline var API_BASE_URL:String = "http://localhost/ProtonAnalytics/api";
 
     private var timer:Timer = new Timer(60 * 1000); // every minute
     private var eventsToResend = new Array<ClientRequest>();
@@ -148,11 +148,17 @@ class AnalyticsClient
             httpRequest.setPostData(request.body);
         }
 
-        httpRequest.onData = function(data) {
-            if (data.toLowerCase() == "false")
+        httpRequest.onData = function(data)
+        {
+            if (data.toLowerCase() != "true")
             {
-                trace('Failed to send request ${request.httpVerb} -- response was FALSE. queueing for retry.');                
-                this.eventsToResend.push(request);
+                trace('Failed to send request ${request.httpVerb} -- response was: ${data}.');
+                // false means don't retry
+                 if (data.toLowerCase() != "false")
+                {
+                    trace("Queueing for retry.");
+                    this.eventsToResend.push(request);
+                }
             }
         }
         httpRequest.onStatus = function(status)

@@ -31,47 +31,48 @@ namespace ProtonAnalytics.Controllers.Api
         // Creates a new session. Returns true if successful, false if you shouldn't retry, error if you should retry.
         public bool Post([FromBody]JObject json)
         {
-            var apiKey = json.GetValue("apiKey").Value<string>();
-            if (string.IsNullOrWhiteSpace(apiKey))
+            var token = this.TryGetValue(json, "apiKey", "StartSession");
+            if (token == null)
             {
-                logger.Fatal("Create Session failed: API key is empty");
                 return false; // invalid request, don't retry
             }
+            var apiKey = token.Value<string>();
 
-            var playerId = json.GetValue("playerId").Value<string>();
-            if (string.IsNullOrWhiteSpace(playerId))
+            token = this.TryGetValue(json, "playerId", "StartSession");
+            if (token == null)
             {
-                logger.Fatal("Create Session failed: player ID is empty");
                 return false; // invalid request, don't retry
             }
+            var playerId = token.Value<string>();
 
-            var version = json.GetValue("version").Value<string>();
-            if (string.IsNullOrWhiteSpace(version))
+            token = this.TryGetValue(json, "version", "StartSession");
+            if (token == null)
             {
-                logger.Fatal("Create Session failed: version is empty");
                 return false; // invalid request, don't retry
             }
+            var version = token.Value<string>();
 
-            var platform = json.GetValue("platform").Value<string>();
-            if (string.IsNullOrWhiteSpace(platform))
+            token = this.TryGetValue(json, "platform", "StartSession");
+            if (token == null)
             {
-                logger.Fatal("Create Session failed: platform is empty");
                 return false; // invalid request, don't retry
             }
+            var platform = token.Value<string>();
 
-            var operatingSystem = json.GetValue("operatingSystem").Value<string>();
-            if (string.IsNullOrWhiteSpace(operatingSystem))
+            token = this.TryGetValue(json, "operatingSystem", "StartSession");
+            if (token == null)
             {
-                logger.Fatal("Create Session failed: OS is empty");
                 return false; // invalid request, don't retry
             }
+            var operatingSystem = token.Value<string>();
 
-            var sessionStartUtc = json.GetValue("sessionStartUtc").Value<string>();
-            if (string.IsNullOrWhiteSpace(sessionStartUtc))
+            token = this.TryGetValue(json, "sessionStartUtc", "StartSession");
+            if (token == null)
             {
-                logger.Fatal("Create Session failed: session start time is empty");
                 return false; // invalid request, don't retry
             }
+            var sessionStartUtc = token.Value<string>();
+
             var asDate = DateTime.ParseExact(sessionStartUtc, HaxeDateTimeFormat, CultureInfo.InvariantCulture);
 
             var games = repository.Query<Game>("ApiKey = @apiKey", new { apiKey = apiKey });
@@ -94,26 +95,27 @@ namespace ProtonAnalytics.Controllers.Api
         // Marks a session as complete. Returns true if successful, false if you shouldn't retry, error if you should retry.
         public bool Put([FromBody]JObject json)
         {
-            var apiKey = json.GetValue("apiKey").Value<string>();
-            if (string.IsNullOrWhiteSpace(apiKey))
+            var token = this.TryGetValue(json, "apiKey", "EndSession");
+            if (token == null)
             {
-                logger.Fatal("End Session failed: API key is empty");
                 return false; // invalid request, don't retry
             }
+            var apiKey = token.Value<string>();
 
-            var playerId = json.GetValue("playerId").Value<string>();
-            if (string.IsNullOrWhiteSpace(playerId))
+            token = this.TryGetValue(json, "playerId", "EndSession");
+            if (token == null)
             {
-                logger.Fatal("End Session failed: player ID is empty");
                 return false; // invalid request, don't retry
             }
+            var playerId = token.Value<string>();
 
-            var sessionEndUtc = json.GetValue("sessionEndUtc").Value<string>();
-            if (string.IsNullOrWhiteSpace(sessionEndUtc))
+            token = this.TryGetValue(json, "sessionEndUtc", "EndSession");
+            if (token == null)
             {
-                logger.Fatal("End Session failed: session end-time is empty");
                 return false; // invalid request, don't retry
             }
+            var sessionEndUtc = token.Value<string>();
+
             var asDate = DateTime.ParseExact(sessionEndUtc, HaxeDateTimeFormat, CultureInfo.InvariantCulture);
 
             var games = repository.Query<Game>("ApiKey = @apiKey", new { apiKey = apiKey });
@@ -136,12 +138,34 @@ namespace ProtonAnalytics.Controllers.Api
             // If multiple, end the last session. Even if it has an end time, update it.
             // This allows platforms like Flash, which can't support end-session, to checkpoint
             // every few minutes. Not the best, but better than nothing, amirite?
-            var session = sessions.OrderBy(s => s.SessionStartUtc).Last();            
+            var session = sessions.OrderBy(s => s.SessionStartUtc).Last();
             session.End(asDate);
 
             repository.Save<Session>(session);
 
             return true;
-        }        
+        }
+
+        /// <summary>
+        /// Get a property from a JSON object. If the property doesn't exist, logs an error.
+        /// If the property value is empty, also logs an error.
+        /// Returns null if the property doesn't exist or is empty; returns the JToken node otherwise.
+        /// </summary>
+        private JToken TryGetValue(JObject obj, string propertyName, string errorMessagePrefix)
+        {
+            JToken toReturn = null;
+            var succeeded = obj.TryGetValue(propertyName, out toReturn);
+            if (!succeeded)
+            {
+                logger.Error($"{errorMessagePrefix}: {propertyName} doesn't exist");
+                return null;
+            }
+            else if (string.IsNullOrWhiteSpace(toReturn.Value<string>()))
+            {
+                logger.Error($"{errorMessagePrefix}: {propertyName} is empty");
+                return null;
+            }
+            return toReturn;
+        }
     }
 }
