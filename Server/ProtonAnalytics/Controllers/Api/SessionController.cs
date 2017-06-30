@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using NLog;
 using ProtonAnalytics.Models;
 using ProtonAnalytics.Repositories;
 using System;
@@ -16,12 +17,14 @@ namespace ProtonAnalytics.Controllers.Api
     public class SessionController : ApiController
     {
         private static readonly string HaxeDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+        private ILogger logger;
 
         private IGenericRepository repository;
 
-        public SessionController(IGenericRepository repository)
+        public SessionController(IGenericRepository repository, ILogger logger)
         {
             this.repository = repository;
+            this.logger = logger;
         }
 
         // POST: api/Session
@@ -31,36 +34,42 @@ namespace ProtonAnalytics.Controllers.Api
             var apiKey = json.GetValue("apiKey").Value<string>();
             if (string.IsNullOrWhiteSpace(apiKey))
             {
+                logger.Fatal("Create Session failed: API key is empty");
                 return false; // invalid request, don't retry
             }
 
             var playerId = json.GetValue("playerId").Value<string>();
             if (string.IsNullOrWhiteSpace(playerId))
             {
+                logger.Fatal("Create Session failed: player ID is empty");
                 return false; // invalid request, don't retry
             }
 
             var version = json.GetValue("version").Value<string>();
             if (string.IsNullOrWhiteSpace(version))
             {
+                logger.Fatal("Create Session failed: version is empty");
                 return false; // invalid request, don't retry
             }
 
             var platform = json.GetValue("platform").Value<string>();
             if (string.IsNullOrWhiteSpace(platform))
             {
+                logger.Fatal("Create Session failed: platform is empty");
                 return false; // invalid request, don't retry
             }
 
             var operatingSystem = json.GetValue("operatingSystem").Value<string>();
             if (string.IsNullOrWhiteSpace(operatingSystem))
             {
+                logger.Fatal("Create Session failed: OS is empty");
                 return false; // invalid request, don't retry
             }
 
             var sessionStartUtc = json.GetValue("sessionStartUtc").Value<string>();
             if (string.IsNullOrWhiteSpace(sessionStartUtc))
             {
+                logger.Fatal("Create Session failed: session start time is empty");
                 return false; // invalid request, don't retry
             }
             var asDate = DateTime.ParseExact(sessionStartUtc, HaxeDateTimeFormat, CultureInfo.InvariantCulture);
@@ -88,18 +97,21 @@ namespace ProtonAnalytics.Controllers.Api
             var apiKey = json.GetValue("apiKey").Value<string>();
             if (string.IsNullOrWhiteSpace(apiKey))
             {
+                logger.Fatal("End Session failed: API key is empty");
                 return false; // invalid request, don't retry
             }
 
             var playerId = json.GetValue("playerId").Value<string>();
             if (string.IsNullOrWhiteSpace(playerId))
             {
+                logger.Fatal("End Session failed: player ID is empty");
                 return false; // invalid request, don't retry
             }
 
             var sessionEndUtc = json.GetValue("sessionEndUtc").Value<string>();
             if (string.IsNullOrWhiteSpace(sessionEndUtc))
             {
+                logger.Fatal("End Session failed: session end-time is empty");
                 return false; // invalid request, don't retry
             }
             var asDate = DateTime.ParseExact(sessionEndUtc, HaxeDateTimeFormat, CultureInfo.InvariantCulture);

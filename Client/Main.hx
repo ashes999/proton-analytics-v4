@@ -15,7 +15,9 @@ import protonanalytics.AnalyticsClient;
 // Test client created in OpenFL
 class Main extends openfl.display.Sprite
 {
-    private static inline var API_KEY:String = "NLPrclNm1ybTnwcBrwpzp/KcSsn8go8b4tjdRL90Lw8=";
+    // test key main: NLPrclNm1ybTnwcBrwpzp/KcSsn8go8b4tjdRL90Lw8=
+    // test key local: YajkqzzpQottDE6i9tqJ892HvEjM83WrLWoTRT9Hp9U=
+    private static inline var API_KEY:String = "YajkqzzpQottDE6i9tqJ892HvEjM83WrLWoTRT9Hp9U=";
     private static inline var GAME_VERSION:String = "1.0.0";
 
 	public function new()
