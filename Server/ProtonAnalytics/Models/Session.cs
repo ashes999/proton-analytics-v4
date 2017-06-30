@@ -20,7 +20,7 @@ namespace ProtonAnalytics.Models
         public string Version { get; }
 
         // For Dapper.net deserialization
-        public Session(Guid id, Guid gameId, System.Guid playerId, string version, DateTime sessionStartUtc, DateTime sessionEndUtc, string platform, string operatingSystem)
+        public Session(Guid id, Guid gameId, System.Guid playerId, DateTime sessionStartUtc, DateTime sessionEndUtc, string platform, string operatingSystem, string version)
         {
             this.Id = id;
             this.GameId = gameId;
