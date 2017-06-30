@@ -114,7 +114,7 @@ namespace ProtonAnalytics.Controllers
             {
                 var stats = new GameStats();
                 var sessions = this.repository.Query<Session>("GameId = @gameId", new { gameId = game.Id });
-                if (sessions.Any())
+                if (sessions.Any(s => s.SessionEndUtc != DateTime.MinValue))
                 {
                     stats.NumSessions = sessions.Count();
                     var finishedSessions = sessions.Where(s => s.SessionEndUtc != DateTime.MinValue); // nullable but comes back as DateTime.MinValue
