@@ -178,7 +178,12 @@ class AnalyticsClient
         }
         else
         {
+            // doesn't compile on js
+            #if js
+            throw "CustomRequest is not supported on JS. Use GET/POST instead.";
+            #else
             httpRequest.customRequest(true, bytesOutput, request.httpVerb);
+            #end
         }
     }
 
