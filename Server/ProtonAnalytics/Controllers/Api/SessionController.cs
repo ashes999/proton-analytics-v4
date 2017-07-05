@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using NLog;
+using ProtonAnalytics.App_Start.RuntimeConfiguration;
 using ProtonAnalytics.Models;
 using ProtonAnalytics.Repositories;
 using System;
@@ -31,64 +32,96 @@ namespace ProtonAnalytics.Controllers.Api
         // Creates a new session. Returns true if successful, false if you shouldn't retry, error if you should retry.
         public bool Post([FromBody]JObject json)
         {
-            var token = this.TryGetValue(json, "apiKey", "StartSession");
-            if (token == null)
+            bool useGetAndPostOnly = FeatureConfig.LastInstance.Get<bool>("ApiUsesGetAndPostVerbsOnly");
+            bool proceed = false;
+
+            if (useGetAndPostOnly)
             {
-                return false; // invalid request, don't retry
+                // Route to the PUT call. Detect based on a unique field (sessionEndUtc).
+                JToken token = this.TryGetValue(json, "sessionEndUtc", "EndSession");
+                if (token != null)
+                {
+                    // Probably a valid call.
+                    return this.Put(json);
+                }
+                else
+                {
+                    // Routing is enabled but this is just a regular POST / StartSession call
+                    proceed = true;
+                }
             }
-            var apiKey = token.Value<string>();
-
-            token = this.TryGetValue(json, "playerId", "StartSession");
-            if (token == null)
+            else
             {
-                return false; // invalid request, don't retry
+                // regular POST call
+                proceed = true;
             }
-            var playerId = token.Value<string>();
-
-            token = this.TryGetValue(json, "version", "StartSession");
-            if (token == null)
+            
+            if (proceed)
             {
-                return false; // invalid request, don't retry
+                // Creates a new session
+
+                var token = this.TryGetValue(json, "apiKey", "StartSession");
+                if (token == null)
+                {
+                    return false; // invalid request, don't retry
+                }
+                var apiKey = token.Value<string>();
+
+                token = this.TryGetValue(json, "playerId", "StartSession");
+                if (token == null)
+                {
+                    return false; // invalid request, don't retry
+                }
+                var playerId = token.Value<string>();
+
+                token = this.TryGetValue(json, "version", "StartSession");
+                if (token == null)
+                {
+                    return false; // invalid request, don't retry
+                }
+                var version = token.Value<string>();
+
+                token = this.TryGetValue(json, "platform", "StartSession");
+                if (token == null)
+                {
+                    return false; // invalid request, don't retry
+                }
+                var platform = token.Value<string>();
+
+                token = this.TryGetValue(json, "operatingSystem", "StartSession");
+                if (token == null)
+                {
+                    return false; // invalid request, don't retry
+                }
+                var operatingSystem = token.Value<string>();
+
+                token = this.TryGetValue(json, "sessionStartUtc", "StartSession");
+                if (token == null)
+                {
+                    return false; // invalid request, don't retry
+                }
+                var sessionStartUtc = token.Value<string>();
+
+                var asDate = DateTime.ParseExact(sessionStartUtc, HaxeDateTimeFormat, CultureInfo.InvariantCulture);
+
+                var games = repository.Query<Game>("ApiKey = @apiKey", new { apiKey = apiKey });
+
+                if (games.Count() != 1)
+                {
+                    return false; // Your game doesn't exist or you gave us the wrong API key. Don't retry.
+                }
+
+                var game = games.Single();
+
+                // Game is legit. Proceed to insert session.
+                var session = new Session(game.Id, Guid.Parse(playerId), version, platform, operatingSystem, asDate);
+                this.repository.Save<Session>(session);
+
+                return true;
             }
-            var version = token.Value<string>();
 
-            token = this.TryGetValue(json, "platform", "StartSession");
-            if (token == null)
-            {
-                return false; // invalid request, don't retry
-            }
-            var platform = token.Value<string>();
-
-            token = this.TryGetValue(json, "operatingSystem", "StartSession");
-            if (token == null)
-            {
-                return false; // invalid request, don't retry
-            }
-            var operatingSystem = token.Value<string>();
-
-            token = this.TryGetValue(json, "sessionStartUtc", "StartSession");
-            if (token == null)
-            {
-                return false; // invalid request, don't retry
-            }
-            var sessionStartUtc = token.Value<string>();
-
-            var asDate = DateTime.ParseExact(sessionStartUtc, HaxeDateTimeFormat, CultureInfo.InvariantCulture);
-
-            var games = repository.Query<Game>("ApiKey = @apiKey", new { apiKey = apiKey });
-
-            if (games.Count() != 1)
-            {
-                return false; // Your game doesn't exist or you gave us the wrong API key. Don't retry.
-            }
-
-            var game = games.Single();
-
-            // Game is legit. Proceed to insert session.
-            var session = new Session(game.Id, Guid.Parse(playerId), version, platform, operatingSystem, asDate);
-            this.repository.Save<Session>(session);
-
-            return true; 
+            // Technically not possible but required to compile
+            return false;
         }
 
         // PUT: api/Session/5
