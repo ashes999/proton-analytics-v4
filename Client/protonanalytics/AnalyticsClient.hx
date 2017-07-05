@@ -4,11 +4,11 @@ import datetime.DateTime;
 import haxe.Http;
 import haxe.io.Bytes;
 import haxe.Timer;
-import thx.http.RequestInfo;
-import thx.http.RequestType;
-using thx.http.Request;
-using thx.Arrays;
-using thx.Strings;
+// import thx.http.RequestInfo;
+// import thx.http.RequestType;
+// using thx.http.Request;
+// using thx.Arrays;
+// using thx.Strings;
 using protonanalytics.Guid;
 using protonanalytics.storage.IStorage;
 using protonanalytics.storage.SharedObjectStorage;
@@ -88,7 +88,7 @@ class AnalyticsClient
             "sessionEndUtc": "${now}"
         }';
 
-        var request = new ClientRequest("PUT", '${API_BASE_URL}/Session', body);
+        var request = new ClientRequest("POST", '${API_BASE_URL}/Session', body);
         this.httpRequest(request);
     }
     
@@ -96,50 +96,49 @@ class AnalyticsClient
     // Eventually, calls will queue up the "request" for retry if the call fails.    
     private function httpRequest(request:ClientRequest):Void
     {
-        #if neko // useful for debugging/development
+        // #if neko // useful for debugging/development
         this.makeCustomHttpRequest(request);        
-        #else
-        this.makeThxHttpRequest(request);
-        #end
+        // #else
+        //this.makeThxHttpRequest(request);
+        // #end
     }
 
-    private function makeThxHttpRequest(request:ClientRequest):Void
-    {
-        var info:RequestInfo;
-        var headers:Map<String, String> = [
-            "Agent" => "thx.http.Request",            
-        ];
+    // private function makeThxHttpRequest(request:ClientRequest):Void
+    // {
+    //     var info:RequestInfo;
+    //     var headers:Map<String, String> = [
+    //         "Agent" => "thx.http.Request",            
+    //     ];
 
-        if (request.httpVerb == "GET")
-        {
-            info = new RequestInfo(request.httpVerb, request.url, headers);
-        }
-        else
-        {
-            headers.set("Content-Type", "application/json");
-            info = new RequestInfo(request.httpVerb, request.url, headers, Text(request.body));
-        }
+    //     if (request.httpVerb == "GET")
+    //     {
+    //         info = new RequestInfo(request.httpVerb, request.url, headers);
+    //     }
+    //     else
+    //     {
+    //         headers.set("Content-Type", "application/json");
+    //         info = new RequestInfo(request.httpVerb, request.url, headers, Text(request.body));
+    //     }
 
-        Request.make(info, Json).response.flatMap(function(r)
-        {
-            trace('${request.httpVerb} DONE (r=${r.statusCode}): ${r.body}');
-            return r.body;
-        })
-        .success(function(r)
-        {
-            trace('Request successful: ${r}');
-        })
-        .failure(function(e) 
-        {
-            trace('Request FAILED: ${e}');
-            trace('Failed to send request ${request.httpVerb} -- queueing for retry.');
-            this.eventsToResend.push(request);
-        });
-    }
+    //     Request.make(info, Json).response.flatMap(function(r)
+    //     {
+    //         trace('${request.httpVerb} DONE (r=${r.statusCode}): ${r.body}');
+    //         return r.body;
+    //     })
+    //     .success(function(r)
+    //     {
+    //         trace('Request successful: ${r}');
+    //     })
+    //     .failure(function(e) 
+    //     {
+    //         trace('Request FAILED: ${e}');
+    //         trace('Failed to send request ${request.httpVerb} -- queueing for retry.');
+    //         this.eventsToResend.push(request);
+    //     });
+    // }
 
     private function makeCustomHttpRequest(request:ClientRequest):Void
     {
-        #if neko
         var httpRequest:Http = new Http(request.url);
         var bytesOutput = new haxe.io.BytesOutput(); // Useless but necessary to call customRequest
         if (request.httpVerb != "GET")
@@ -181,7 +180,6 @@ class AnalyticsClient
         {
             httpRequest.customRequest(true, bytesOutput, request.httpVerb);
         }
-        #end
     }
 
     // Retries queued events. Also calls endSession every minute, so for clients

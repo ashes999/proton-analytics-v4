@@ -1,12 +1,12 @@
 import haxe.io.Bytes;
-import thx.http.RequestInfo;
-import thx.http.RequestType;
-using thx.http.Request;
-using thx.Arrays;
-using thx.Strings;
-#if thx_stream
-using thx.stream.Stream;
-#end
+// import thx.http.RequestInfo;
+// import thx.http.RequestType;
+// using thx.http.Request;
+// using thx.Arrays;
+// using thx.Strings;
+// #if thx_stream
+// using thx.stream.Stream;
+// #end
 
 import protonanalytics.AnalyticsClient;
 
@@ -17,7 +17,7 @@ class Main extends openfl.display.Sprite
 {
     // test key main: NLPrclNm1ybTnwcBrwpzp/KcSsn8go8b4tjdRL90Lw8=
     // test key local: YajkqzzpQottDE6i9tqJ892HvEjM83WrLWoTRT9Hp9U=
-    private static inline var API_KEY:String = "YajkqzzpQottDE6i9tqJ892HvEjM83WrLWoTRT9Hp9U=";
+    private static inline var API_KEY:String = "NLPrclNm1ybTnwcBrwpzp/KcSsn8go8b4tjdRL90Lw8=";
     private static inline var GAME_VERSION:String = "1.0.0";
 
 	public function new()
