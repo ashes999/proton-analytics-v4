@@ -207,10 +207,14 @@ class AnalyticsClient
 
     private function getPlatform():String
     {
-        #if (flash || flash8 || js)
+        #if android
+            return "Android";
+        #elseif ios
+            return "iOS";
+        #elseif (flash || flash8 || js)
             return "Web";
         #elseif (cpp || neko || cs)
-            // is Android CPP?
+            // Android is CPP too
             return "Desktop";
         #elseif java
             return "Android";
@@ -221,7 +225,11 @@ class AnalyticsClient
 
     private function getOperatingSystem():String
     {
-        #if !js
+        #if android
+            return "Android OS";
+        #elseif ios
+            return "iOS";
+        #elseif !js
             return Sys.systemName(); // eg. Windows, Linux, Mac, BSD
         #else
             // Very crude OS detection based on navigator.userAgent (appName is deprecated)
